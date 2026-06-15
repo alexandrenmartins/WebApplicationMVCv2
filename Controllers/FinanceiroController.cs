@@ -7,17 +7,78 @@ namespace WebApplicationMVCv2.Controllers
     public class FinanceiroController : Controller
     {
         private readonly AppDbContext _dbContext;
-        public FinanceiroController(AppDbContext dbContext)
+        private readonly AppPostgresContext _postgresContext;
+
+        private const string SessionKeyDb = "SelectedDb";
+
+        private AppDbContext ActiveContext =>
+            HttpContext.Session.GetString(SessionKeyDb) == "postgres"
+                ? null!
+                : _dbContext;
+
+        private AppPostgresContext ActivePostgresContext =>
+            HttpContext.Session.GetString(SessionKeyDb) == "postgres"
+                ? _postgresContext
+                : null!;
+
+        public FinanceiroController(AppDbContext dbContext, AppPostgresContext postgresContext)
         {
             _dbContext = dbContext;
+            _postgresContext = postgresContext;
         }
+
+        private List<Lancamento> GetLancamentos()
+        {
+            if (HttpContext.Session.GetString(SessionKeyDb) == "postgres")
+                return _postgresContext.Lancamentos.ToList();
+            return _dbContext.Lancamentos.ToList();
+        }
+
+        private void SaveLancamento(Lancamento lancamento)
+        {
+            if (HttpContext.Session.GetString(SessionKeyDb) == "postgres")
+                _postgresContext.Lancamentos.Add(lancamento);
+            else
+                _dbContext.Lancamentos.Add(lancamento);
+        }
+
+        private void RemoveLancamento(Lancamento lancamento)
+        {
+            if (HttpContext.Session.GetString(SessionKeyDb) == "postgres")
+                _postgresContext.Lancamentos.Remove(lancamento);
+            else
+                _dbContext.Lancamentos.Remove(lancamento);
+        }
+
+        private Lancamento? FindLancamento(int id)
+        {
+            if (HttpContext.Session.GetString(SessionKeyDb) == "postgres")
+                return _postgresContext.Lancamentos.FirstOrDefault(l => l.Id == id);
+            return _dbContext.Lancamentos.FirstOrDefault(l => l.Id == id);
+        }
+
+        private void SaveChanges()
+        {
+            if (HttpContext.Session.GetString(SessionKeyDb) == "postgres")
+                _postgresContext.SaveChanges();
+            else
+                _dbContext.SaveChanges();
+        }
+
+        public IActionResult ToggleDatabase(string db)
+        {
+            HttpContext.Session.SetString(SessionKeyDb, db);
+            return RedirectToAction("Index");
+        }
+
         public IActionResult Index()
         {
-            var lancamentos = _dbContext.Lancamentos.ToList();
+            var lancamentos = GetLancamentos();
 
             ViewBag.TotalReceitas = lancamentos.Where(l => l.Tipo == "Receita").Sum(l => l.Valor);
             ViewBag.TotalDespesas = lancamentos.Where(l => l.Tipo == "Despesa").Sum(l => l.Valor);
             ViewBag.Saldo = ViewBag.TotalReceitas - ViewBag.TotalDespesas;
+            ViewBag.SelectedDb = HttpContext.Session.GetString(SessionKeyDb) ?? "sqlserver";
 
             return View(lancamentos);
         }
@@ -32,8 +93,8 @@ namespace WebApplicationMVCv2.Controllers
         {
             if (ModelState.IsValid)
             {
-                _dbContext.Lancamentos.Add(lancamento);
-                _dbContext.SaveChanges();
+                SaveLancamento(lancamento);
+                SaveChanges();
                 return RedirectToAction("Index");
             }
             return View(lancamento);
@@ -41,8 +102,7 @@ namespace WebApplicationMVCv2.Controllers
 
         public IActionResult DeletarLancamentoView(int id)
         {
-            //var lancamento = _dbContext.Lancamentos.Find(id);
-            var lancamento = _dbContext.Lancamentos.FirstOrDefault(l => l.Id == id);
+            var lancamento = FindLancamento(id);
             if (lancamento == null)
                 return NotFound();
 
@@ -52,11 +112,11 @@ namespace WebApplicationMVCv2.Controllers
         [HttpPost]
         public IActionResult ConfirmaDeletarLancamento(int id)
         {
-            var lancamento = _dbContext.Lancamentos.FirstOrDefault(l => l.Id == id);
+            var lancamento = FindLancamento(id);
             if (lancamento == null)
                 return NotFound();
-            _dbContext.Lancamentos.Remove(lancamento);
-            _dbContext.SaveChanges();
+            RemoveLancamento(lancamento);
+            SaveChanges();
             return RedirectToAction("Index");
         }
     }
