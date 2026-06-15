@@ -29,9 +29,9 @@ namespace WebApplicationMVCv2.Controllers
 
         private List<Lancamento> GetLancamentos()
         {
-            if (HttpContext.Session.GetString(SessionKeyDb) == "postgres")
-                return _postgresContext.Lancamentos.ToList();
-            return _dbContext.Lancamentos.ToList();
+            if (HttpContext.Session.GetString(SessionKeyDb) == "sqlserver")
+                return _dbContext.Lancamentos.ToList();
+            return _postgresContext.Lancamentos.ToList();
         }
 
         private void SaveLancamento(Lancamento lancamento)
