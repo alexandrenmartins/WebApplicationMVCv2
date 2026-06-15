@@ -36,10 +36,10 @@ namespace WebApplicationMVCv2.Controllers
 
         private void SaveLancamento(Lancamento lancamento)
         {
-            if (HttpContext.Session.GetString(SessionKeyDb) == "postgres")
-                _postgresContext.Lancamentos.Add(lancamento);
-            else
+            if (HttpContext.Session.GetString(SessionKeyDb) == "sqlserver")
                 _dbContext.Lancamentos.Add(lancamento);
+            else
+                _postgresContext.Lancamentos.Add(lancamento);
         }
 
         private void RemoveLancamento(Lancamento lancamento)
