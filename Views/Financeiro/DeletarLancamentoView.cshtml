@@ -1,0 +1,67 @@
+﻿@model Lancamento
+
+<div class="container mt-4">
+
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+
+            <div class="card shadow border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-exclamation-triangle"></i> Confirmar Exclusão
+                    </h5>
+                </div>
+
+                <div class="card-body">
+                    <p class="text-danger fw-bold">
+                        Tem certeza que deseja excluir este lançamento?
+                    </p>
+
+                    <ul class="list-group mb-3">
+                        <li class="list-group-item">
+                            <strong>Descrição:</strong> @Model.Descricao
+                        </li>
+                        <li class="list-group-item">
+                            <strong>Valor:</strong> R$ @Model.Valor
+                        </li>
+                        <li class="list-group-item">
+                            <strong>Tipo:</strong>
+                            @if (Model.Tipo == "Receita")
+                            {
+                                <span class="badge bg-success">
+                                    <i class="bi bi-arrow-up"></i> Receita
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">
+                                    <i class="bi bi-arrow-down"></i> Despesa
+                                </span>
+                            }
+                        </li>
+                        <li class="list-group-item">
+                            <strong>Categoria:</strong> @Model.Categoria
+                        </li>
+                        <li class="list-group-item">
+                            <strong>Data:</strong> @Model.Data.ToShortDateString()
+                        </li>
+                    </ul>
+
+                    <form asp-action="ConfirmaDeletarLancamento" method="post" class="d-flex justify-content-between">
+                        <input type="hidden" name="id" value="@Model.Id" />
+
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left"></i> Cancelar
+                        </a>
+
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash"></i> Confirmar Exclusão
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>

@@ -1,0 +1,72 @@
+﻿@model Lancamento
+
+<div class="container mt-4">
+
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-plus-circle"></i> Novo Lançamento
+                    </h5>
+                </div>
+
+                <div class="card-body">
+                    <form asp-action="CriarLancamentoView" method="post">
+
+                        <div class="mb-3">
+                            <label class="form-label">Descrição</label>
+                            <input asp-for="Descricao" class="form-control" placeholder="Ex: Aluguel, Salário..." />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Valor</label>
+                            <div class="input-group">
+                                <span class="input-group-text">R$</span>
+                                <input asp-for="Valor"
+                                       type="number"
+                                       step="0.01"
+                                       class="form-control" />
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Tipo</label>
+                            <select asp-for="Tipo" class="form-select">
+                                <option value="">Selecione</option>
+                                <option value="Receita">Receita</option>
+                                <option value="Despesa">Despesa</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Categoria</label>
+                            <input asp-for="Categoria"
+                                   class="form-control"
+                                   placeholder="Ex: Moradia, Alimentação..." />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Data</label>
+                            <input asp-for="Data" type="date" class="form-control" />
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left"></i> Voltar
+                            </a>
+
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-check-circle"></i> Salvar
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
