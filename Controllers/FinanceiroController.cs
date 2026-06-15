@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using WebApplicationMVCv2.Data;
 using WebApplicationMVCv2.Models;
 
@@ -65,15 +66,45 @@ namespace WebApplicationMVCv2.Controllers
                 _postgresContext.SaveChanges();
         }
 
+        private bool TestarConexao(DbContext context)
+        {
+            try
+            {
+                return context.Database.CanConnect();
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public IActionResult ToggleDatabase(string db)
         {
+            var context = db == "sqlserver" ? (DbContext)_dbContext : _postgresContext;
+
+            if (!TestarConexao(context))
+            {
+                TempData["ErroBanco"] = "Banco de dados indisponível. Mantendo conexão atual.";
+                return RedirectToAction("Index");
+            }
+
             HttpContext.Session.SetString(SessionKeyDb, db);
             return RedirectToAction("Index");
         }
 
         public IActionResult Index()
         {
-            var lancamentos = GetLancamentos();
+            List<Lancamento> lancamentos;
+
+            try
+            {
+                lancamentos = GetLancamentos();
+            }
+            catch
+            {
+                TempData["ErroBanco"] = "Não foi possível conectar ao banco de dados selecionado.";
+                lancamentos = new List<Lancamento>();
+            }
 
             ViewBag.TotalReceitas = lancamentos.Where(l => l.Tipo == "Receita").Sum(l => l.Valor);
             ViewBag.TotalDespesas = lancamentos.Where(l => l.Tipo == "Despesa").Sum(l => l.Valor);
