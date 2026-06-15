@@ -12,15 +12,15 @@
             </button>
             <ul class="dropdown-menu dropdown-menu-end">
                 <li>
-                    <a class="dropdown-item @(ViewBag.SelectedDb != "postgres" ? "active" : "")"
-                       asp-action="ToggleDatabase" asp-route-db="sqlserver">
-                        <i class="bi bi-server"></i> SQL Server
+                    <a class="dropdown-item @(ViewBag.SelectedDb == "sqlserver" ? "active" : "")"
+                       asp-action="ToggleDatabase" asp-route-db="postgres">
+                        <i class="bi bi-database"></i> PostgreSQL
                     </a>
                 </li>
                 <li>
-                    <a class="dropdown-item @(ViewBag.SelectedDb == "postgres" ? "active" : "")"
-                       asp-action="ToggleDatabase" asp-route-db="postgres">
-                        <i class="bi bi-database"></i> PostgreSQL
+                    <a class="dropdown-item @(ViewBag.SelectedDb != "postgres" ? "active" : "")"
+                       asp-action="ToggleDatabase" asp-route-db="sqlserver">
+                        <i class="bi bi-server"></i> SQL Server
                     </a>
                 </li>
             </ul>

@@ -9,17 +9,17 @@ namespace WebApplicationMVCv2.Controllers
         private readonly AppDbContext _dbContext;
         private readonly AppPostgresContext _postgresContext;
 
-        private const string SessionKeyDb = "SelectedDb";
+        private const string SessionKeyDb = "postgres";
 
         private AppDbContext ActiveContext =>
-            HttpContext.Session.GetString(SessionKeyDb) == "postgres"
-                ? null!
-                : _dbContext;
+            HttpContext.Session.GetString(SessionKeyDb) == "sqlserver"
+                ? _dbContext
+                : null!;
 
         private AppPostgresContext ActivePostgresContext =>
-            HttpContext.Session.GetString(SessionKeyDb) == "postgres"
-                ? _postgresContext
-                : null!;
+            HttpContext.Session.GetString(SessionKeyDb) == "sqlserver"
+                ? null!
+                : _postgresContext;
 
         public FinanceiroController(AppDbContext dbContext, AppPostgresContext postgresContext)
         {
@@ -44,25 +44,25 @@ namespace WebApplicationMVCv2.Controllers
 
         private void RemoveLancamento(Lancamento lancamento)
         {
-            if (HttpContext.Session.GetString(SessionKeyDb) == "postgres")
-                _postgresContext.Lancamentos.Remove(lancamento);
-            else
+            if (HttpContext.Session.GetString(SessionKeyDb) == "sqlserver")
                 _dbContext.Lancamentos.Remove(lancamento);
+            else
+                _postgresContext.Lancamentos.Remove(lancamento);
         }
 
         private Lancamento? FindLancamento(int id)
         {
-            if (HttpContext.Session.GetString(SessionKeyDb) == "postgres")
-                return _postgresContext.Lancamentos.FirstOrDefault(l => l.Id == id);
-            return _dbContext.Lancamentos.FirstOrDefault(l => l.Id == id);
+            if (HttpContext.Session.GetString(SessionKeyDb) == "sqlserver")
+                return _dbContext.Lancamentos.FirstOrDefault(l => l.Id == id);
+            return _postgresContext.Lancamentos.FirstOrDefault(l => l.Id == id);
         }
 
         private void SaveChanges()
         {
-            if (HttpContext.Session.GetString(SessionKeyDb) == "postgres")
-                _postgresContext.SaveChanges();
-            else
+            if (HttpContext.Session.GetString(SessionKeyDb) == "sqlserver")
                 _dbContext.SaveChanges();
+            else
+                _postgresContext.SaveChanges();
         }
 
         public IActionResult ToggleDatabase(string db)
@@ -78,7 +78,7 @@ namespace WebApplicationMVCv2.Controllers
             ViewBag.TotalReceitas = lancamentos.Where(l => l.Tipo == "Receita").Sum(l => l.Valor);
             ViewBag.TotalDespesas = lancamentos.Where(l => l.Tipo == "Despesa").Sum(l => l.Valor);
             ViewBag.Saldo = ViewBag.TotalReceitas - ViewBag.TotalDespesas;
-            ViewBag.SelectedDb = HttpContext.Session.GetString(SessionKeyDb) ?? "sqlserver";
+            ViewBag.SelectedDb = HttpContext.Session.GetString(SessionKeyDb) ?? "postgres";
 
             return View(lancamentos);
         }
