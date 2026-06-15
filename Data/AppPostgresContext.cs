@@ -10,4 +10,11 @@ public class AppPostgresContext : DbContext
     }
 
     public DbSet<Lancamento> Lancamentos { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Lancamento>()
+            .Property(l => l.Data)
+            .HasColumnType("timestamp without time zone");
+    }
 }
