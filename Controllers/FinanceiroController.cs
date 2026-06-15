@@ -78,7 +78,7 @@ namespace WebApplicationMVCv2.Controllers
             ViewBag.TotalReceitas = lancamentos.Where(l => l.Tipo == "Receita").Sum(l => l.Valor);
             ViewBag.TotalDespesas = lancamentos.Where(l => l.Tipo == "Despesa").Sum(l => l.Valor);
             ViewBag.Saldo = ViewBag.TotalReceitas - ViewBag.TotalDespesas;
-            ViewBag.SelectedDb = HttpContext.Session.GetString(SessionKeyDb) ?? "sqlserver";
+            ViewBag.SelectedDb = HttpContext.Session.GetString(SessionKeyDb) ?? "postgres";
 
             return View(lancamentos);
         }
